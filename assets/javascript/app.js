@@ -30,7 +30,8 @@ let players = {
     },
     addToQueue: function() {
         database.ref('queue').push({
-            playerId: players.playerId
+            playerId: players.playerId,
+            dateAdded: firebase.database.ServerValue.TIMESTAMP
         })
     }
 };
@@ -40,7 +41,9 @@ let game = {
     gameQueue: 0,
     gameStatus: 'waiting',
     selectPlayers: function() {
-
+        // let citiesRef = database.ref('cities');
+        let getPlayers = database.ref('queue').orderByChild('dateAdded').limitToFirst(2);
+        console.log(getPlayers);
     },
     startNewGame: function() {
         // Initialize Game Record
@@ -71,6 +74,8 @@ $(document).ready(function() {
     database.ref('queue').on("child_added", function(snapshot) {
         game.gameQueue++;
 
-        // if(game.gameQueue)
+        if(game.gameQueue >= 2) {
+            game.selectPlayers();
+        }
     });
 });
