@@ -14,68 +14,100 @@ let database = firebase.database();
 
 let players = {
     playerId: '',
-    addNewPlayer: function() {
+    addNewPlayer: function(nickName, first, last) {
         // Initialize Game Record
-        let playerConnection = database.ref('players').push({
-            nickName: 'tester5',
-            first: 'John',
-            last: 'Smith',
+        let playerReference = database.ref('players');
+        let playerConnection = playerReference.push({
+            nickName: nickName,
+            first: first,
+            last: last,
+            currentState: 'online',
             wins: 0,
             losses: 0
         });
 
         players.playerId = playerConnection.ref.key;
 
-        players.addToQueue();
+        playerConnection.onDisconnect().update({
+            currentState: 'offline'
+        });
+
+        // players.addToQueue(players.playerId);
     },
-    addToQueue: function() {
-        database.ref('queue').push({
-            playerId: players.playerId,
-            dateAdded: firebase.database.ServerValue.TIMESTAMP
-        })
+    // addToQueue: function(playerId) {
+    //     database.ref('queue').push({
+    //         playerId: playerId,
+    //         dateAdded: firebase.database.ServerValue.TIMESTAMP
+    //     })
+    // },
+    // removeFromQueue: function(playerSnapshot) {
+    //     playerSnapshot.ref.remove();
+    // }
+    returnPlayer: function() {
+        return players.playerId;
     }
 };
 
 let game = {
     gameId: '',
-    gameQueue: 0,
     gameStatus: 'waiting',
-    selectPlayers: function() {
-        // let citiesRef = database.ref('cities');
-        let getPlayers = database.ref('queue').orderByChild('dateAdded').limitToFirst(2);
-        console.log(getPlayers);
-    },
-    startNewGame: function() {
+    createPairings: function() {
         // Initialize Game Record
-        gameConnection = database.ref('games').push({
-            playerOne: {
-                playerId: '',
-                currentSelection: ''
-            },
-            playerTwo: {
-                playerId: '',
-                currentSelection: ''
+        let gameConnection;
+
+        gamesRef = database.ref('games');
+        gamesRef.once("value", function(snapshot){
+            // Not defined - add a new game
+            if (!snapshot.val()) {
+                console.log("testing 1");
+                gameConnection = database.ref('games').push({
+                    playerOne: {
+                        playerId: players.returnPlayer(),
+                        currentSelection: ''
+                    },
+                    playerTwo: {
+                        playerId: '',
+                        currentSelection: ''                        
+                    }
+                });
+            } else {
+            // Check the games to see if anyone is waiting for another member
+                snapshot.forEach(function(itemSnapshot) {
+                    console.log(itemSnapshot.val());
+                    if(!itemSnapshot.val().playerTwo.playerId && !game.gameId) {
+                        itemSnapshot.ref.update({
+                            playerTwo: {
+                                playerId: players.returnPlayer(),
+                                currentSelection: ''
+                            }
+                        });
+                        
+                        game.gameId = itemSnapshot.ref.key;
+                    } 
+                });
+                    
+                // Start a brand new game
+                if (!game.gameId) {
+                    console.log("testing 2");
+                    gameConnection = database.ref('games').push({
+                        playerOne: {
+                            playerId: players.returnPlayer(),
+                            currentSelection: ''
+                        },
+                        playerTwo: {
+                            playerId: '',
+                            currentSelection: ''                        
+                        }
+                    });     
+                    
+                    game.gameId = gameConnection.ref.key;
+                }    
             }
         });
-
-        gameId = gameConnection.ref.key;
-    },
-
-    roundOver: function(winner, loser) {
-
     }
 }
 
 $(document).ready(function() {
-    players.addNewPlayer();
-    game.startNewGame();
-
-    // Listener - player gets added to the queue
-    database.ref('queue').on("child_added", function(snapshot) {
-        game.gameQueue++;
-
-        if(game.gameQueue >= 2) {
-            game.selectPlayers();
-        }
-    });
+    players.addNewPlayer('tester3', 'john', 'tester');
+    game.createPairings();
 });
