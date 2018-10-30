@@ -95,12 +95,12 @@ let game = {
                     playerTwo: {
                         playerId: '',
                         currentSelection: ''                        
-                    }
+                    },
+                    status: 'waiting'
                 });
 
                 game.gameId = gameConnection.ref.key;
                 game.gameReference = gameConnection.ref;
-
 
                 gameConnection.onDisconnect().remove();
 
@@ -112,8 +112,11 @@ let game = {
                             playerTwo: {
                                 playerId: players.returnPlayer(),
                                 currentSelection: ''
-                            }
+                            },
+                            status: 'playing'
                         });
+
+                        game.gameStatus = 'playing';
                         
                         game.gameId = itemSnapshot.ref.key;
                         game.gameReference = itemSnapshot.ref;
@@ -136,7 +139,8 @@ let game = {
                         playerTwo: {
                             playerId: '',
                             currentSelection: ''                        
-                        }
+                        },
+                        status: 'waiting'
                     });     
                     
                     game.gameId = gameConnection.ref.key;
@@ -146,11 +150,21 @@ let game = {
                 }    
             }
 
-            // Setup listener for game changes
+            // Setup listener - Game changes
             let gameQueryString = 'games/' + game.gameId;
             database.ref(gameQueryString).on("child_changed", function(snapshot) {
                 let playerChoices = snapshot.val();
 
+                // Check if a new game has been triggered with a status of playing
+                if(game.gameStatus === 'waiting' && playerChoices === 'playing') {
+                    game.gameStatus = 'playing';
+
+                    // Kick off game screen
+                    $('.screen-waiting-opponent').hide();
+                    $('.screen-game').show();   
+                }
+
+                // Check what choice was selected
                 if (playerChoices.currentSelection) {
                     game.roundChoices.push(playerChoices);
                 }
@@ -163,7 +177,7 @@ let game = {
                 }
             });
 
-            // Game over - opponent has left
+            // Setup Listener - Game over, opponent has left
             database.ref(gameQueryString).on("child_removed", function(snapshot) {
                 console.log("Other player has left");
             });
@@ -215,6 +229,8 @@ let game = {
 }
 
 $(document).ready(function() {
+
+    // Create user to play the game
     $('#button-add-player').on('click', function() {
         event.preventDefault();
         let inputNick = $('#inputNick').val();
