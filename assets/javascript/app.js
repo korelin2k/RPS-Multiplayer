@@ -88,13 +88,9 @@ let game = {
             // Not defined - add a new game
             if (!snapshot.val()) {
                 gameConnection = database.ref('games').push({
-                    playerOne: {
-                        playerId: players.returnPlayer(),
-                        currentSelection: ''
-                    },
-                    playerTwo: {
-                        playerId: '',
-                        currentSelection: ''                        
+                    [players.playerId]: {
+                        currentSelection: '',
+                        chat: ''
                     },
                     status: 'waiting'
                 });
@@ -107,11 +103,12 @@ let game = {
             } else {
             // Check the games to see if anyone is waiting for another member
                 snapshot.forEach(function(itemSnapshot) {
-                    if(!itemSnapshot.val().playerTwo.playerId && !game.gameId) {
+                    console.log(itemSnapshot.val());
+                    if((Object.keys(itemSnapshot.val()).length === 2) && !game.gameId) {
                         gameConnection = itemSnapshot.ref.update({
-                            playerTwo: {
-                                playerId: players.returnPlayer(),
-                                currentSelection: ''
+                            [players.playerId]: {
+                                currentSelection: '',
+                                chat: ''
                             },
                             status: 'playing'
                         });
@@ -132,13 +129,9 @@ let game = {
                 // Start a brand new game
                 if (!game.gameId) {
                     gameConnection = database.ref('games').push({
-                        playerOne: {
-                            playerId: players.returnPlayer(),
-                            currentSelection: ''
-                        },
-                        playerTwo: {
-                            playerId: '',
-                            currentSelection: ''                        
+                        [players.playerId]: {
+                            currentSelection: '',
+                            chat: ''
                         },
                         status: 'waiting'
                     });     
@@ -182,6 +175,9 @@ let game = {
                 console.log("Other player has left");
             });
         });
+    },
+    selectChoice: function() {
+
     },
     gameRules: function(playerChoices) {
         let playerOneSelection, playerTwoSelection;
