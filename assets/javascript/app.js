@@ -101,6 +101,7 @@ let game = {
                 game.gameId = gameConnection.ref.key;
                 game.gameReference = gameConnection.ref;
 
+
                 gameConnection.onDisconnect().remove();
 
             } else {
@@ -118,6 +119,10 @@ let game = {
                         game.gameReference = itemSnapshot.ref;
 
                         itemSnapshot.ref.onDisconnect().remove();
+
+                        // Kick off game screen
+                        $('.screen-waiting-opponent').hide();
+                        $('.screen-game').show();                       
                     } 
                 });
                     
@@ -156,6 +161,11 @@ let game = {
                     // Reset values
                     game.roundChoices = [];
                 }
+            });
+
+            // Game over - opponent has left
+            database.ref(gameQueryString).on("child_removed", function(snapshot) {
+                console.log("Other player has left");
             });
         });
     },
@@ -205,6 +215,17 @@ let game = {
 }
 
 $(document).ready(function() {
-    players.addNewPlayer('tester3', 'john', 'tester');
-    game.createPairings();
+    $('#button-add-player').on('click', function() {
+        event.preventDefault();
+        let inputNick = $('#inputNick').val();
+        let inputFirst = $('#inputFirst').val();
+        let inputLast = $('#inputLast').val();
+
+        players.addNewPlayer(inputNick, inputFirst, inputLast);
+        game.createPairings();
+
+        // Show proper screens
+        $('.screen-new-session').hide();
+        $('.screen-waiting-opponent').show();
+    });
 });

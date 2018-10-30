@@ -1,0 +1,12 @@
+body, html {
+    max-width: 800px;
+    margin: auto;
+}
+
+.screen-waiting-opponent {
+    display: none;
+}
+
+.fa-pulse {
+    font-size: 250px;
+}
