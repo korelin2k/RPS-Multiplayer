@@ -18,10 +18,12 @@ let players = {
     nickName: '',
     first: '',
     last: '',
-    addNewPlayer: function(nickName, first, last) {
+    avatar: '',
+    addNewPlayer: function(nickName, first, last, avatar) {
         players.nickName = nickName;
         players.first = first;
         players.last = last;
+        players.avatar = avatar;
 
         // Initialize Game Record
         let playerReference = database.ref('players');
@@ -29,6 +31,7 @@ let players = {
             nickName: nickName,
             first: first,
             last: last,
+            avatar: avatar,
             currentState: 'online',
             wins: 0,
             losses: 0,
@@ -41,6 +44,7 @@ let players = {
         playerConnection.onDisconnect().update({
             currentState: 'offline'
         });
+
     },
     returnPlayer: function() {
         return players.playerId;
@@ -103,7 +107,6 @@ let game = {
             } else {
             // Check the games to see if anyone is waiting for another member
                 snapshot.forEach(function(itemSnapshot) {
-                    console.log(itemSnapshot.val());
                     if((Object.keys(itemSnapshot.val()).length === 2) && !game.gameId) {
                         gameConnection = itemSnapshot.ref.update({
                             [players.playerId]: {
@@ -232,12 +235,13 @@ $(document).ready(function() {
         let inputNick = $('#inputNick').val();
         let inputFirst = $('#inputFirst').val();
         let inputLast = $('#inputLast').val();
+        let inputAvatar = $("input:radio[name ='inputAvatar']:checked").val();
+        console.log(inputAvatar);
 
-        players.addNewPlayer(inputNick, inputFirst, inputLast);
-        game.createPairings();
+        players.addNewPlayer(inputNick, inputFirst, inputLast, inputAvatar);
 
         // Show proper screens
         $('.screen-new-session').hide();
-        $('.screen-waiting-opponent').show();
+        $('.screen-want-to-play').show();
     });
 });

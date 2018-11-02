@@ -1,5 +1,6 @@
 <!DOCTYPE <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,13 +15,14 @@
     <script src="assets/javascript/firebase.js"></script>
     <script src="assets/javascript/app.js"></script>
 </head>
+
 <body>
     <!-- New session screen -->
-    <div class="container-fluid screen-new-session">
+    <div class="container-fluid screen-new-session h-100">
         <div class="row">
-            <div class="col box h-100 d-flex justify-content-center flex-column">     
+            <div class="col box h-100 d-flex justify-content-center flex-column primary-card-box">
                 <div class="card card-outline-secondary">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-dark text-white">
                         <h3 class="mb-0">Sign Up</h3>
                     </div>
                     <div class="card-body">
@@ -38,11 +40,88 @@
                                 <input type="text" class="form-control" id="inputLast" placeholder="Last name">
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary btn-lg float-right" id="button-add-player">Play</button>
+                                <p><label for="inputAvatar">Pick Your Avatar</label></p>
+                                <p class="text-center">
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="onesi-avatar-fortnite-skin-dpn.png">
+                                        <img src="assets/images/onesi-avatar-fortnite-skin-dpn.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="DlRWMzDXoAAMrxp.png">
+                                        <img src="assets/images/DlRWMzDXoAAMrxp.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="DWFgwGwX0AEA9-G.png">
+                                        <img src="assets/images/DWFgwGwX0AEA9-G.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="fate-image-2.png">
+                                        <img src="assets/images/fate-image-2.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="fortnite_flytrap_skin_datamine_1.png">
+                                        <img src="assets/images/fortnite_flytrap_skin_datamine_1.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="fortnite_scoundrel_skin_datamine_1.png">
+                                        <img src="assets/images/fortnite_scoundrel_skin_datamine_1.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="fortnite-raven-png-3.png">
+                                        <img src="assets/images/fortnite-raven-png-3.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="fortnite-transparent-skull-trooper-2.png">
+                                        <img src="assets/images/fortnite-transparent-skull-trooper-2.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="image_19698.png">
+                                        <img src="assets/images/image_19698.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="jumpshot-image-2.png">
+                                        <img src="assets/images/jumpshot-image-2.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="juv653r6t5j01.png">
+                                        <img src="assets/images/juv653r6t5j01.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="oblivion-icon-2.png">
+                                        <img src="assets/images/oblivion-icon-2.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="tomatohead-skin-2.png">
+                                        <img src="assets/images/tomatohead-skin-2.png" width="100px">
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inputAvatar" value="archetype-epic.png">
+                                        <img src="assets/images/archetype-epic.png" width="100px">
+                                    </label>
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-dark btn-lg float-right" id="button-add-player">Create Character</button>
                             </div>
                         </form>
                     </div>
-                </div>           
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Want to play? screen -->
+    <div class="container-fluid screen-want-to-play">
+        <div class="row">
+            <div class="col box h-100 d-flex justify-content-center flex-column">
+                <div class="card card-outline-secondary">
+                    <div class="card-header bg-dark text-white">
+                        <h3 class="mb-0">Waiting for Challenger</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <i class="fa fa-spinner fa-pulse fa-5x" aria-hidden="true"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -50,15 +129,15 @@
     <!-- Waiting for opponent screen -->
     <div class="container-fluid screen-waiting-opponent">
         <div class="row">
-            <div class="col box h-100 d-flex justify-content-center flex-column">     
+            <div class="col box h-100 d-flex justify-content-center flex-column">
                 <div class="card card-outline-secondary">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-dark text-white">
                         <h3 class="mb-0">Waiting for Challenger</h3>
                     </div>
                     <div class="card-body text-center">
                         <i class="fa fa-spinner fa-pulse fa-5x" aria-hidden="true"></i>
                     </div>
-                </div>           
+                </div>
             </div>
         </div>
     </div>
@@ -66,11 +145,26 @@
     <!-- Primary Game Screen -->
     <div class="container-fluid screen-game">
         <div class="row">
-            <div class="col box h-100 d-flex justify-content-center flex-column">     
-                Game is starting here         
+            <div class="col box h-100 d-flex justify-content-center flex-column">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-6">
+                            You
+                        </div>
+                        <div class="col-6">
+                            Enemy
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            Chat Box Here
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+
 </body>
-</html> 
+
+</html>
