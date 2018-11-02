@@ -16,10 +16,12 @@ body {
 
 .screen-want-to-play {
     display: none;
+    opacity: .9;
 }
 
 .screen-waiting-opponent {
     display: none;
+    opacity: .9;
 }
 
 .fa-pulse {
@@ -28,6 +30,7 @@ body {
 
 .screen-game {
     display: none;
+    opacity: .9;
 }
 
 /* HIDE RADIO */

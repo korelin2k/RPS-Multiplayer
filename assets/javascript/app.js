@@ -19,11 +19,22 @@ let players = {
     first: '',
     last: '',
     avatar: '',
+    wins: '',
+    losses: '',
+    ties: '',
+    opponent: {
+        playerId: '',
+        nickName: '',
+        avatar: ''
+    },
     addNewPlayer: function(nickName, first, last, avatar) {
         players.nickName = nickName;
         players.first = first;
         players.last = last;
         players.avatar = avatar;
+        players.wins = 0;
+        players.losses = 0;
+        players.ties = 0;
 
         // Initialize Game Record
         let playerReference = database.ref('players');
@@ -45,6 +56,8 @@ let players = {
             currentState: 'offline'
         });
 
+        localStorage.setItem('playerId', players.playerId);
+
     },
     returnPlayer: function() {
         return players.playerId;
@@ -57,6 +70,8 @@ let players = {
             let currentWins = (snapshot.val() + 1);
             conRef.set(currentWins);
         });
+
+        players.wins++;
     },
     incrementLosses: function() {
         let playerLosses = 'players/' + players.playerId + '/losses'
@@ -66,6 +81,8 @@ let players = {
             let currentLosses = (snapshot.val() + 1);
             conRef.set(currentLosses);
         });
+
+        players.losses++;
     },
     incrementTies: function() {
         let playerTies = 'players/' + players.playerId + '/ties'
@@ -75,6 +92,8 @@ let players = {
             let currentTies = (snapshot.val() + 1);
             conRef.set(currentTies);
         });
+
+        player.ties++;
     }
 };
 
@@ -123,9 +142,7 @@ let game = {
 
                         itemSnapshot.ref.onDisconnect().remove();
 
-                        // Kick off game screen
-                        $('.screen-waiting-opponent').hide();
-                        $('.screen-game').show();                       
+                        game.gameScreen();                    
                     } 
                 });
                     
@@ -155,9 +172,7 @@ let game = {
                 if(game.gameStatus === 'waiting' && playerChoices === 'playing') {
                     game.gameStatus = 'playing';
 
-                    // Kick off game screen
-                    $('.screen-waiting-opponent').hide();
-                    $('.screen-game').show();   
+                    game.gameScreen();
                 }
 
                 // Check what choice was selected
@@ -175,9 +190,36 @@ let game = {
 
             // Setup Listener - Game over, opponent has left
             database.ref(gameQueryString).on("child_removed", function(snapshot) {
-                console.log("Other player has left");
+                $('.screen-game').hide();
+                $('.screen-want-to-play').show();
             });
         });
+    },
+    gameScreen: function() {
+        let gameDetails = 'games/' + game.gameId;
+        let conRef = database.ref(gameDetails);
+
+        conRef.once("value", function(snapshot){
+            let gameResults = Object.keys(snapshot.val());
+
+            for (i in gameResults) {
+                if (gameResults[i] !== 'status' && gameResults[i] !== players.playerId) {
+                    players.opponent.playerId = gameResults[i];
+
+                    let opponentDetails = 'players/' + players.opponent.playerId;
+                    let conRef = database.ref(opponentDetails);
+            
+                    conRef.once("value", function(snapshot){
+                        players.opponent.nickName = snapshot.val().nickName;
+                        players.opponent.avatar = snapshot.val().avatar;
+
+                        // Kick off game screen
+                        $('.screen-waiting-opponent').hide();
+                        $('.screen-game').show(); 
+                    });                   
+                }
+            }   
+        });        
     },
     selectChoice: function() {
 
@@ -224,10 +266,51 @@ let game = {
                 return "You win!";
             }
         }
+    },
+    populateCharacterScreen: function() {
+        $('.player-avatar').attr('src', 'assets/images/' + players.avatar);
+        $('.player-nick').text(players.nickName);
+        $('.player-first').text(players.first);
+        $('.player-last').text(players.last);
+        $('.player-wins').text(players.wins);
+        $('.player-losses').text(players.losses);
+        $('.player-ties').text(players.ties);
     }
 }
 
 $(document).ready(function() {
+    // Check if player has been stored in localStorage
+    if(localStorage.getItem('playerId') !== null) {
+        players.playerId = localStorage.getItem('playerId');
+        let playerDetails = 'players/' + players.playerId;
+        let conRef = database.ref(playerDetails);
+
+        conRef.once("value", function(snapshot){
+            players.nickName = snapshot.val().nickName;
+            players.first = snapshot.val().first;
+            players.last = snapshot.val().last;
+            players.avatar = snapshot.val().avatar;
+            players.wins = snapshot.val().wins;
+            players.losses = snapshot.val().losses;
+            players.ties = snapshot.val().ties;  
+            
+            game.populateCharacterScreen();
+
+            // Show proper screens
+            $('.screen-new-session').hide();
+            $('.screen-want-to-play').show();
+        });       
+
+        // Update Game Record
+        let playerReference = database.ref('players/' + players.playerId);
+        let playerConnection = playerReference.update({
+            currentState: 'online',
+        });
+
+        playerReference.onDisconnect().update({
+            currentState: 'offline'
+        });
+    }
 
     // Create user to play the game
     $('#button-add-player').on('click', function() {
@@ -240,8 +323,18 @@ $(document).ready(function() {
 
         players.addNewPlayer(inputNick, inputFirst, inputLast, inputAvatar);
 
+        game.populateCharacterScreen();
+
         // Show proper screens
         $('.screen-new-session').hide();
         $('.screen-want-to-play').show();
+    });
+
+    $(document).on('click', '#submit-play-game', function() {
+        event.preventDefault();
+        game.createPairings();
+
+        $('.screen-want-to-play').hide();
+        $('.screen-waiting-opponent').show();
     });
 });
