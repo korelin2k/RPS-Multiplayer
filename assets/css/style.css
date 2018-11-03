@@ -44,6 +44,7 @@ body {
     max-width: 800px;
     height: 200px;
     background-color: #fff;
+    overflow-y: scroll;
 }
 
 /* HIDE RADIO */

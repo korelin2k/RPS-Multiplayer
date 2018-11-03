@@ -71,6 +71,13 @@ let players = {
             conRef.set(currentWins);
         });
 
+        commentString = '<p>' + players.nickName + ' beat ' + players.opponent.nickName + ' like a little girl!</p>';
+        let updateChat = database.ref('games/' + game.gameId + '/chat');
+        let updateConnection = updateChat.push({
+            comment: commentString
+        });   
+        game.roundStatus = 'playing';
+
         players.wins++;
     },
     incrementLosses: function() {
@@ -82,6 +89,7 @@ let players = {
             conRef.set(currentLosses);
         });
 
+        game.roundStatus = 'playing';
         players.losses++;
     },
     incrementTies: function() {
@@ -93,6 +101,15 @@ let players = {
             conRef.set(currentTies);
         });
 
+        if (game.playerPosition) {
+            commentString = '<p>' + players.nickName + ' tied ' + players.opponent.nickName + ' - weak!</p>';
+            let updateChat = database.ref('games/' + game.gameId + '/chat');
+            let updateConnection = updateChat.push({
+                comment: commentString
+            });   
+        } 
+
+        game.roundStatus = 'playing';
         players.ties++;
     }
 };
@@ -101,6 +118,8 @@ let game = {
     gameId: '',
     gameReference: '',
     gameStatus: 'waiting',
+    roundStatus: 'waiting',
+    playerPosition: '',
     roundChoices: [],
     createPairings: function() {
         // Initialize Game Record
@@ -121,13 +140,14 @@ let game = {
 
                 game.gameId = gameConnection.ref.key;
                 game.gameReference = gameConnection.ref;
+                game.playerPosition = 0;
 
                 gameConnection.onDisconnect().remove();
 
             } else {
             // Check the games to see if anyone is waiting for another member
                 snapshot.forEach(function(itemSnapshot) {
-                    if((Object.keys(itemSnapshot.val()).length === 2) && !game.gameId) {
+                    if((Object.keys(itemSnapshot.val()).length === 3) && !game.gameId) {
                         gameConnection = itemSnapshot.ref.update({
                             [players.playerId]: {
                                 playerId: players.playerId,
@@ -138,6 +158,8 @@ let game = {
                         });
 
                         game.gameStatus = 'playing';
+                        game.roundStatus = 'playing';
+                        game.playerPosition = 1;
                         
                         game.gameId = itemSnapshot.ref.key;
                         game.gameReference = itemSnapshot.ref;
@@ -161,6 +183,7 @@ let game = {
                     
                     game.gameId = gameConnection.ref.key;
                     game.gameReference = gameConnection.ref;
+                    game.playerPosition = 0;
 
                     gameConnection.onDisconnect().remove();
                 }    
@@ -170,21 +193,23 @@ let game = {
             let gameQueryString = 'games/' + game.gameId;
             database.ref(gameQueryString).on("child_changed", function(snapshot) {
                 let playerChoices = snapshot.val();
+                console.log(playerChoices);
 
                 // Check if a new game has been triggered with a status of playing
                 if(game.gameStatus === 'waiting' && playerChoices === 'playing') {
                     game.gameStatus = 'playing';
+                    game.roundStatus = 'playing';
 
                     game.gameScreen();
                 }
 
                 // Check what choice was selected
                 if (playerChoices.currentSelection) {
-                    console.log(playerChoices);
                     game.roundChoices.push(playerChoices);
                 }
 
-                if(game.roundChoices.length === 2) {
+                if(game.roundChoices.length === 2 && game.roundStatus === 'playing') {
+                    game.roundStatus = 'waiting';
                     console.log(game.gameRules(game.roundChoices));
 
                     // Reset values
@@ -195,6 +220,8 @@ let game = {
                         currentSelection: '',
                     });   
                 }
+
+                // Check if the change is a comment
             });
 
             // Setup Listener - Game over, opponent has left
@@ -213,7 +240,7 @@ let game = {
             let gameResults = Object.keys(snapshot.val());
 
             for (i in gameResults) {
-                if (gameResults[i] !== 'status' && gameResults[i] !== players.playerId) {
+                if (gameResults[i] !== 'status' && gameResults[i] !== 'chat' && gameResults[i] !== players.playerId) {
                     players.opponent.playerId = gameResults[i];
 
                     let opponentDetails = 'players/' + players.opponent.playerId;
@@ -228,7 +255,6 @@ let game = {
 
                         $('.player-name').text(players.nickName);
                         $('.opponent-name').text(players.opponent.nickName);
-
 
                         // Kick off game screen
                         $('.screen-waiting-opponent').hide();
