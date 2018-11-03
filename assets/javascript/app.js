@@ -93,7 +93,7 @@ let players = {
             conRef.set(currentTies);
         });
 
-        player.ties++;
+        players.ties++;
     }
 };
 
@@ -114,8 +114,8 @@ let game = {
                     [players.playerId]: {
                         playerId: players.playerId,
                         currentSelection: '',
-                        chat: ''
                     },
+                    chat: '',
                     status: 'waiting'
                 });
 
@@ -132,8 +132,8 @@ let game = {
                             [players.playerId]: {
                                 playerId: players.playerId,
                                 currentSelection: '',
-                                chat: ''
                             },
+                            chat: '',
                             status: 'playing'
                         });
 
@@ -154,8 +154,8 @@ let game = {
                         [players.playerId]: {
                             playerId: players.playerId,
                             currentSelection: '',
-                            chat: ''
                         },
+                        chat: '',
                         status: 'waiting'
                     });     
                     
@@ -189,6 +189,11 @@ let game = {
 
                     // Reset values
                     game.roundChoices = [];
+
+                    let gameSelection = database.ref('games/' + game.gameId + '/' + players.playerId);
+                    let playerConnection = gameSelection.update({
+                        currentSelection: '',
+                    });   
                 }
             });
 

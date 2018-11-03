@@ -40,6 +40,12 @@ body {
     cursor: pointer;
 }
 
+.chat-output {
+    max-width: 800px;
+    height: 200px;
+    background-color: #fff;
+}
+
 /* HIDE RADIO */
 [type=radio] { 
     position: absolute;
