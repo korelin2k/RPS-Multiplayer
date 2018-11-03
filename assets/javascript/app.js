@@ -232,6 +232,10 @@ let game = {
 
             // Setup Listener - Game over, opponent has left
             database.ref(gameQueryString).on("child_removed", function(snapshot) {
+                game.gameStatus = 'waiting';
+                game.roundStatus = 'waiting';
+                $('.chat-output').empty();
+                $('.custom-join-message').html(players.opponent.nickName + ' has <strong>disconnected</strong>. Play another?')
                 game.gameId = '';
                 $('.screen-game').hide();
                 $('.screen-want-to-play').show();
@@ -355,9 +359,24 @@ $(document).ready(function() {
     $('#button-add-player').on('click', function() {
         event.preventDefault();
         let inputNick = $('#inputNick').val();
+        if (!inputNick) {
+            inputNick = 'Smithy';
+        }
+
         let inputFirst = $('#inputFirst').val();
+        if (!inputFirst) {
+            inputFirst = 'Jack';
+        }
+
         let inputLast = $('#inputLast').val();
+        if (!inputLast) {
+            inputLast = 'Smith';
+        }
+
         let inputAvatar = $("input:radio[name ='inputAvatar']:checked").val();
+        if (!inputAvatar) {
+            inputAvatar = 'fate-image-2.png';
+        }
 
         players.addNewPlayer(inputNick, inputFirst, inputLast, inputAvatar);
 

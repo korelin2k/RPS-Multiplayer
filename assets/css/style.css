@@ -3,6 +3,7 @@ body {
     margin: auto;
     background-image: url('../images/background.jpg');
     background-size: cover;
+    background-attachment: fixed;
 }
 
 .screen-new-session {
