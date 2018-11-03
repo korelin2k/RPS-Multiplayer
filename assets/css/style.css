@@ -31,6 +31,13 @@ body {
 .screen-game {
     display: none;
     opacity: .9;
+    height: auto !important;
+    min-height: 100%;
+}
+
+.make-selection:hover {
+    transform: scale(1.5);
+    cursor: pointer;
 }
 
 /* HIDE RADIO */

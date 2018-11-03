@@ -112,6 +112,7 @@ let game = {
             if (!snapshot.val()) {
                 gameConnection = database.ref('games').push({
                     [players.playerId]: {
+                        playerId: players.playerId,
                         currentSelection: '',
                         chat: ''
                     },
@@ -129,6 +130,7 @@ let game = {
                     if((Object.keys(itemSnapshot.val()).length === 2) && !game.gameId) {
                         gameConnection = itemSnapshot.ref.update({
                             [players.playerId]: {
+                                playerId: players.playerId,
                                 currentSelection: '',
                                 chat: ''
                             },
@@ -150,6 +152,7 @@ let game = {
                 if (!game.gameId) {
                     gameConnection = database.ref('games').push({
                         [players.playerId]: {
+                            playerId: players.playerId,
                             currentSelection: '',
                             chat: ''
                         },
@@ -177,6 +180,7 @@ let game = {
 
                 // Check what choice was selected
                 if (playerChoices.currentSelection) {
+                    console.log(playerChoices);
                     game.roundChoices.push(playerChoices);
                 }
 
@@ -190,6 +194,7 @@ let game = {
 
             // Setup Listener - Game over, opponent has left
             database.ref(gameQueryString).on("child_removed", function(snapshot) {
+                game.gameId = '';
                 $('.screen-game').hide();
                 $('.screen-want-to-play').show();
             });
@@ -213,6 +218,13 @@ let game = {
                         players.opponent.nickName = snapshot.val().nickName;
                         players.opponent.avatar = snapshot.val().avatar;
 
+                        $('.player-avatar').attr('src', 'assets/images/' + players.avatar);
+                        $('.opponent-avatar').attr('src', 'assets/images/' + players.opponent.avatar);
+
+                        $('.player-name').text(players.nickName);
+                        $('.opponent-name').text(players.opponent.nickName);
+
+
                         // Kick off game screen
                         $('.screen-waiting-opponent').hide();
                         $('.screen-game').show(); 
@@ -220,9 +232,6 @@ let game = {
                 }
             }   
         });        
-    },
-    selectChoice: function() {
-
     },
     gameRules: function(playerChoices) {
         let playerOneSelection, playerTwoSelection;
@@ -336,5 +345,16 @@ $(document).ready(function() {
 
         $('.screen-want-to-play').hide();
         $('.screen-waiting-opponent').show();
+    });
+
+    $(document).on('click', '.make-selection', function() {
+        let selectionValue = $(this).attr('id');
+        console.log(selectionValue);
+        
+        // Update Game Record
+        let gameSelection = database.ref('games/' + game.gameId + '/' + players.playerId);
+        let playerConnection = gameSelection.update({
+            currentSelection: selectionValue,
+        });        
     });
 });

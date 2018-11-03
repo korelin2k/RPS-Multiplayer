@@ -154,18 +154,31 @@
     <div class="container-fluid screen-game">
         <div class="row">
             <div class="col box h-100 d-flex justify-content-center flex-column">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-6">
-                            You
-                        </div>
-                        <div class="col-6">
-                            Enemy
-                        </div>
+                <div class="row bg-white">
+                    <div class="col-12 col-sm-4 text-center">
+                        <img class="player-avatar" src="" width="200">
+                        <p class="player-name"></p>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            Chat Box Here
+                    <div class="col-12 col-sm-4 my-auto justify-content-center d-inline flex-column text-center">
+                        <img src="assets/images/wall.png" id="paper" class="make-selection" width="75">
+                        <img src="assets/images/rocker-launcher.png" id="rock" class="make-selection" width="75">
+                        <img src="assets/images/clinger.png" id="scissors" class="make-selection" width="75">
+                        <p>(Wall: Paper, Rocket Launcher: Rock, Scissors: Clinger)</p>
+                    </div>
+                    <div class="col-12 col-sm-4 text-center">
+                        <img class="opponent-avatar" src="" width="200">
+                        <p class="opponent-name"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="chat-box"></label>
+                            <textarea class="form-control" id="chat-box" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="chat-input"></label>
+                            <input type="text" class="form-control" id="chat-input" placeholder="Type here...">
                         </div>
                     </div>
                 </div>
