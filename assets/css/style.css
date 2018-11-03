@@ -47,6 +47,10 @@ body {
     overflow-y: scroll;
 }
 
+.chat-output p {
+    margin:0;
+}
+
 /* HIDE RADIO */
 [type=radio] { 
     position: absolute;

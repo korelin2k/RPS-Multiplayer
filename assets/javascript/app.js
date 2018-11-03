@@ -193,7 +193,6 @@ let game = {
             let gameQueryString = 'games/' + game.gameId;
             database.ref(gameQueryString).on("child_changed", function(snapshot) {
                 let playerChoices = snapshot.val();
-                console.log(playerChoices);
 
                 // Check if a new game has been triggered with a status of playing
                 if(game.gameStatus === 'waiting' && playerChoices === 'playing') {
@@ -210,7 +209,7 @@ let game = {
 
                 if(game.roundChoices.length === 2 && game.roundStatus === 'playing') {
                     game.roundStatus = 'waiting';
-                    console.log(game.gameRules(game.roundChoices));
+                    game.gameRules(game.roundChoices);
 
                     // Reset values
                     game.roundChoices = [];
@@ -222,6 +221,13 @@ let game = {
                 }
 
                 // Check if the change is a comment
+                if(typeof playerChoices === 'object') {
+                    let lastChange = Object.values(playerChoices).pop();
+                    
+                    if (lastChange.comment) {
+                        $('.chat-output').append(lastChange.comment);
+                    }
+                } 
             });
 
             // Setup Listener - Game over, opponent has left
@@ -277,33 +283,26 @@ let game = {
 
         if (playerOneSelection === playerTwoSelection) {
             players.incrementTies();
-            return "It's a tie!";
         }
         if (playerOneSelection === "rock") {
             if (playerTwoSelection === "scissors") {
                 players.incrementWins();
-                return "You win!";
             } else {
                 players.incrementLosses();
-                return "You lose! Try again.";
             }
         }
         if (playerOneSelection === "paper") {
             if (playerTwoSelection === "rock") {
                 players.incrementWins();
-                return "You win!";
             } else {
                 players.incrementLosses();
-                return "You lose! Try again.";
             }
         }
         if (playerOneSelection === "scissors") {
             if (playerTwoSelection === "rock") {
                 players.incrementLosses();
-                return "You lose! Try again.";
             } else {
                 players.incrementWins();
-                return "You win!";
             }
         }
     },
@@ -359,7 +358,6 @@ $(document).ready(function() {
         let inputFirst = $('#inputFirst').val();
         let inputLast = $('#inputLast').val();
         let inputAvatar = $("input:radio[name ='inputAvatar']:checked").val();
-        console.log(inputAvatar);
 
         players.addNewPlayer(inputNick, inputFirst, inputLast, inputAvatar);
 
@@ -380,12 +378,27 @@ $(document).ready(function() {
 
     $(document).on('click', '.make-selection', function() {
         let selectionValue = $(this).attr('id');
-        console.log(selectionValue);
         
         // Update Game Record
         let gameSelection = database.ref('games/' + game.gameId + '/' + players.playerId);
         let playerConnection = gameSelection.update({
             currentSelection: selectionValue,
         });        
+    });
+
+    $(document).on('keypress', '#chat-input', function(e) {
+        var key = e.which;
+        if(key == 13){
+            let commentString = '<p>' + players.nickName + ': ';
+            commentString += $('#chat-input').val();
+            commentString += '</p>';
+
+            let updateChat = database.ref('games/' + game.gameId + '/chat');
+            let updateConnection = updateChat.push({
+                comment: commentString
+            });   
+
+            $('#chat-input').val('');
+        }
     });
 });
