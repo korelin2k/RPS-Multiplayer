@@ -11,3 +11,6 @@
 3. Responsive design (play on your phone!)
 4. Taunt your opponent with an in-game chat
 5. Your "player-id" is saved in localstorage, so it "logs" you in the moment you launch the page. Stupid SSO!
+
+### Link
+https://korelin2k.github.io/RPS-Multiplayer/index.html
